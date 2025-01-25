@@ -1,64 +1,48 @@
-name: CI/CD Pipeline for React Native
+name: React Native CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, develop ]
   pull_request:
-    branches:
-      - main
+    branches: [ main, develop ]
 
 jobs:
-  lint:
-    name: Lint Code
+  lint_and_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: npm install
-      - run: npm run lint
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+    - run: npm ci
+    - run: npm run lint
+    - run: npm test
 
-  test:
-    name: Run Tests
+  android_build:
+    needs: lint_and_test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: npm install
-      - run: npm test
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    - name: Build Android Release
+      run: |
+        cd android
+        ./gradlew assembleRelease
 
-  android-build:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: npm install
-      - name: Build APK
-        run: |
-          npx expo prebuild --platform android
-          npx expo build:android --type apk
-
-  ios-build:
-    name: Build iOS IPA
+  ios_build:
+    needs: lint_and_test
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: npm install
-      - name: Build IPA
-        run: |
-          npx expo prebuild --platform ios
-          npx expo build:ios --type archive
+    - uses: actions/checkout@v3
+    - name: Build iOS
+      run: |
+        xcodebuild -workspace ios/my-app.xcworkspace \
+        -scheme my-app \
+        -configuration Release \
+        -archivePath $PWD/build/my-app.xcarchive \
+        archive
