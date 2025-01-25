@@ -23,6 +23,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2998bd3c-9eec-4f81-bfbe-40588b81e757"
+      }
+    },
+    "owner": "josephboat"
   }
 }
