@@ -42,12 +42,11 @@ export const SignupScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
-    }
+
     if (!emailError && !passwordError && !passwordMatchError) {
       signup(email, password);
+      Alert.alert('Success', 'Account created successfully!');
+      navigation.navigate('Login');
     } else {
       Alert.alert('Error', 'Please fix the errors before submitting.');
     }
@@ -79,6 +78,7 @@ export const SignupScreen = ({ navigation }) => {
           validatePassword(text);
         }}
         secureTextEntry
+        error={!!passwordError}
         style={styles.input}
       />
       {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
@@ -94,7 +94,9 @@ export const SignupScreen = ({ navigation }) => {
         error={!!passwordMatchError}
         style={styles.input}
       />
-      {passwordMatchError ? <Text style={styles.errorText}>{passwordMatchError}</Text> : null}
+      {passwordMatchError ? (
+        <Text style={styles.errorText}>{passwordMatchError}</Text>
+      ) : null}
       <Button
         mode="contained"
         onPress={handleSignup}
@@ -107,7 +109,8 @@ export const SignupScreen = ({ navigation }) => {
         style={styles.switchText}
         onPress={() => navigation.navigate('Login')}
       >
-        Already have an account? <Text style={styles.linkText}>Login</Text>
+        Already have an account?{' '}
+        <Text style={styles.linkText}>Login</Text>
       </Text>
     </View>
   );
