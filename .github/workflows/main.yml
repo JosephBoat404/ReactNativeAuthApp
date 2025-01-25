@@ -1,4 +1,4 @@
-name: React Native CI/CD
+\name: React Native CI/CD
 
 on:
   push:
@@ -19,15 +19,14 @@ jobs:
         run: npm ci
       - name: Run Linter and Tests
         run: |
-          # Optional: Add linter (e.g., eslint) command if needed
           npm run lint
           npm run test
         env:
-          CI: true  # Ensures CI-compatible output
+          CI: true
 
-  expo_build:
+  android_build:
     needs: lint_and_test
-    runs-on: ubuntu-latest  # Use macos-latest for iOS builds
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -39,11 +38,22 @@ jobs:
       - name: Install Expo CLI
         run: npm install -g eas-cli
       - name: Build for Android
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: |
           npx eas build --platform android --non-interactive
+
+  ios_build:
+    needs: lint_and_test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Expo CLI
+        run: npm install -g eas-cli
       - name: Build for iOS
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        runs-on: macos-latest
         run: |
           npx eas build --platform ios --non-interactive
