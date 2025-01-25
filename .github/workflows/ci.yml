@@ -1,0 +1,64 @@
+name: CI/CD Pipeline for React Native
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm run lint
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm test
+
+  android-build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - name: Build APK
+        run: |
+          npx expo prebuild --platform android
+          npx expo build:android --type apk
+
+  ios-build:
+    name: Build iOS IPA
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - name: Build IPA
+        run: |
+          npx expo prebuild --platform ios
+          npx expo build:ios --type archive
