@@ -10,28 +10,40 @@ jobs:
   lint_and_test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
-    - run: npm ci
-    - run: npm test  # Run tests only if this script exists in package.json
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Linter and Tests
+        run: |
+          # Optional: Add linter (e.g., eslint) command if needed
+          npm run lint
+          npm run test
+        env:
+          CI: true  # Ensures CI-compatible output
 
   expo_build:
     needs: lint_and_test
-    runs-on: ubuntu-latest  # Change to macos-latest for iOS builds
+    runs-on: ubuntu-latest  # Use macos-latest for iOS builds
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
-    - name: Install dependencies
-      run: npm ci
-    - name: Build for Android
-      run: |
-        npx eas build --platform android --non-interactive
-    - name: Build for iOS
-      run: |
-        npx eas build --platform ios --non-interactive
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Expo CLI
+        run: npm install -g eas-cli
+      - name: Build for Android
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: |
+          npx eas build --platform android --non-interactive
+      - name: Build for iOS
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        runs-on: macos-latest
+        run: |
+          npx eas build --platform ios --non-interactive
