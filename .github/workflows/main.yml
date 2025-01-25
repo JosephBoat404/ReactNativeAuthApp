@@ -2,9 +2,9 @@ name: React Native CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ master, develop ]
 
 jobs:
   lint_and_test:
@@ -16,25 +16,23 @@ jobs:
       with:
         node-version: '16'
     - run: npm ci
-    - run: npm run lint  # Ensure you have a linting script in your project
-    - run: npm test      # Ensure you have a testing script in your project
+    - run: npm run lint  # Ensure this script exists in package.json
+    - run: npm test      # Ensure this script exists in package.json
 
   expo_build:
     needs: lint_and_test
-    runs-on: ubuntu-latest  # Change to macos-latest if you're building for iOS
+    runs-on: ubuntu-latest  # Change to macos-latest for iOS builds
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Node.js
+    - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '16'
     - name: Install dependencies
-      run: npm install
+      run: npm ci
     - name: Build for Android
       run: |
-        npx expo build:android --no-publish --non-interactive
+        npx eas build --platform android --non-interactive
     - name: Build for iOS
       run: |
-        npx expo build:ios --no-publish --non-interactive
-
-  # Optionally, you can add steps to publish to the Expo or App Store once the builds are complete
+        npx eas build --platform ios --non-interactive
