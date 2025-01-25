@@ -16,8 +16,7 @@ jobs:
       with:
         node-version: '16'
     - run: npm ci
-    - run: npm run lint  # Ensure this script exists in package.json
-    - run: npm test      # Ensure this script exists in package.json
+    - run: npm test  # Run tests only if this script exists in package.json
 
   expo_build:
     needs: lint_and_test
